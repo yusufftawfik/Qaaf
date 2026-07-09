@@ -14,6 +14,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+
+  // ESLint is a dev-only concern; never let it block `next build` on the server.
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
