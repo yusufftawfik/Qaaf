@@ -3,10 +3,10 @@
 import * as React from "react";
 
 /**
- * Renders its children at a fixed `designWidth` and uniformly scales the whole
- * block down (or up) so it always fits the available width — like viewing a
- * poster image. This keeps the full horizontal Manhaj Al-Noor layout intact on
- * every screen instead of reflowing it into a vertical stack.
+ * Renders children at a fixed `designWidth`, centered, and scales the whole
+ * block DOWN to fit narrower viewports (never up past its natural size). This
+ * keeps the full horizontal poster visible and readable at 100% zoom, works in
+ * RTL, and lets normal browser zoom enlarge a word.
  */
 export function ScaleToFit({
   designWidth,
@@ -27,7 +27,7 @@ export function ScaleToFit({
 
     const update = () => {
       const w = outer.clientWidth;
-      const s = w / designWidth;
+      const s = Math.min(1, w / designWidth); // only shrink, never enlarge
       setScale(s);
       setHeight(inner.offsetHeight * s);
     };
@@ -40,13 +40,18 @@ export function ScaleToFit({
   }, [designWidth]);
 
   return (
-    <div ref={outerRef} className="w-full overflow-hidden" style={{ height }}>
+    <div
+      ref={outerRef}
+      className="flex w-full items-start justify-center overflow-hidden"
+      style={{ height }}
+    >
       <div
         ref={innerRef}
         style={{
           width: designWidth,
+          flex: "none",
           transform: `scale(${scale})`,
-          transformOrigin: "top left",
+          transformOrigin: "top center",
         }}
       >
         {children}

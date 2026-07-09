@@ -8,8 +8,8 @@ import { NewsletterCTA } from "@/components/dialogue/NewsletterCTA";
 export default function HomePage() {
   return (
     <>
-      {/* The Manhaj Al-Noor poster IS the homepage — spread wide, every cell clickable. */}
-      <section className="mx-auto max-w-[1600px] px-3 pt-6 sm:px-5">
+      {/* The Manhaj Al-Noor poster IS the homepage — centered, fits width, every cell clickable. */}
+      <section className="mx-auto max-w-[1320px] px-3 pt-6 sm:px-4">
         <PosterMap />
       </section>
       <CoreIdea />

@@ -13,7 +13,7 @@ import { ScaleToFit } from "./ScaleToFit";
 import { cn } from "@/lib/utils";
 
 /** Natural (unscaled) width of the poster; ScaleToFit fits it to the page. */
-const DESIGN_WIDTH = 1280;
+const DESIGN_WIDTH = 1200;
 
 /** Compact column titles (the poster's per-column theme headers). */
 const SHORT: Record<string, string> = {
@@ -31,21 +31,23 @@ const SHORT: Record<string, string> = {
   foreign: "الشئون الخارجية",
 };
 
-/* A single clickable surah cell: number + name (as on the poster). */
+/* A single clickable surah cell: number + name (as on the poster).
+   The WHOLE box highlights on hover (gold fill + inset ring). */
 function Cell({ surah, highlight }: { surah: Surah; highlight?: boolean }) {
   return (
     <Link
       href={`/surahs/${surah.slug}`}
       title={`${surah.nuzul}. سورة ${surah.nameAr} — ${surahTheme(surah)}`}
       className={cn(
-        "group flex min-h-[22px] items-center gap-1 px-1 py-0.5 transition-colors",
-        highlight ? "bg-gold-500/20 hover:bg-gold-500/30" : "bg-parchment-50 hover:bg-gold-100"
+        "group relative flex min-h-[21px] items-center gap-1 px-1.5 py-0.5 transition-colors",
+        "hover:z-10 hover:bg-gold-200 hover:ring-2 hover:ring-inset hover:ring-gold-500",
+        highlight ? "bg-gold-500/20" : "bg-parchment-50"
       )}
     >
-      <span className="flex h-4 min-w-[16px] items-center justify-center rounded-sm bg-navy-900/[0.07] text-[8px] font-bold tabular-nums text-navy-700 group-hover:bg-navy-900 group-hover:text-parchment-50">
+      <span className="flex h-[15px] min-w-[17px] items-center justify-center rounded-sm bg-navy-900/[0.07] text-[9px] font-bold tabular-nums text-navy-700 group-hover:bg-navy-900 group-hover:text-parchment-50">
         {surah.nuzul}
       </span>
-      <span className="truncate text-[9.5px] font-semibold leading-none text-navy-900">
+      <span className="truncate text-[11px] font-semibold leading-none text-navy-900">
         {surah.nameAr}
       </span>
     </Link>
