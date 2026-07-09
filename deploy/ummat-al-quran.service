@@ -1,0 +1,22 @@
+# /etc/systemd/system/ummat-al-quran.service
+# Alternative to PM2. Enable with:
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now ummat-al-quran
+
+[Unit]
+Description=Ummat Al-Quran (Next.js production server)
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+WorkingDirectory=/var/www/ummat-al-quran
+Environment=NODE_ENV=production
+Environment=PORT=3000
+# Run Next directly via the absolute node path (from NodeSource install)
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

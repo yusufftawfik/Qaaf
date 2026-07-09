@@ -37,6 +37,17 @@ export function SearchExplorer({
     (TYPE_OPTIONS.find((t) => t.value === initialType)?.value as ResourceType) ?? "all"
   );
 
+  // Hydrate ?q= / ?type= from the URL on the client (static-export safe).
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const urlQ = params.get("q");
+    const urlType = params.get("type");
+    if (urlQ) setQ(urlQ);
+    if (urlType && TYPE_OPTIONS.some((t) => t.value === urlType)) {
+      setType(urlType as ResourceType | "all");
+    }
+  }, []);
+
   const query = q.trim().toLowerCase();
 
   const surahResults =

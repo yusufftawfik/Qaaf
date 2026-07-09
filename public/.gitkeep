@@ -1,0 +1,2 @@
+# Static assets (favicon, og-image, robots.txt, downloadable PDFs) go here.
+# Files in /public are served from the site root, e.g. /public/robots.txt -> /robots.txt
