@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+@layer base {
+  /* --font-sans / --font-display / --font-serif are injected on <html>
+     by next/font (see app/layout.tsx). Tailwind's fontFamily provides
+     graceful fallbacks, so we intentionally do not redefine them here. */
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-parchment-50 text-ink font-sans antialiased;
+    background-image: radial-gradient(
+        1200px 600px at 100% -5%,
+        rgba(199, 162, 76, 0.06),
+        transparent 60%
+      ),
+      radial-gradient(900px 500px at 0% 0%, rgba(34, 107, 84, 0.05), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  /* Headings default to the display face */
+  h1,
+  h2,
+  h3 {
+    @apply font-display tracking-tight;
+  }
+
+  ::selection {
+    background: rgba(199, 162, 76, 0.28);
+    color: #0a1d33;
+  }
+
+  /* Consistent, visible focus for keyboard users */
+  :focus-visible {
+    outline: 2px solid #c7a24c;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Reusable component classes
+ * ------------------------------------------------------------------ */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Gold hairline divider */
+  .gold-rule {
+    @apply h-px w-full bg-gold-fade opacity-70;
+  }
+
+  /* Small uppercase eyebrow label */
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-gold-700;
+  }
+
+  /* Card base */
+  .card {
+    @apply rounded-2xl border border-parchment-200 bg-white/70 shadow-card backdrop-blur-sm;
+  }
+
+  .card-interactive {
+    @apply card transition-all duration-300 hover:-translate-y-0.5 hover:border-gold-300 hover:shadow-card-hover;
+  }
+
+  /* Subtle geometric texture overlays */
+  .texture-navy {
+    background-image: theme("backgroundImage.geo-navy");
+  }
+  .texture-parchment {
+    background-image: theme("backgroundImage.geo-parchment");
+  }
+
+  /* Arabic display lockup used for the wordmark / big titles */
+  .wordmark {
+    @apply font-display leading-none;
+    letter-spacing: 0.01em;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  /* Line clamps without the plugin */
+  .clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
