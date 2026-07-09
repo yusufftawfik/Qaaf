@@ -114,4 +114,35 @@ a server:
   (Formspree, Basin) or a **Cloudflare Pages Function / Worker** (free tier) — no VPS required.
 - **Switching back to SSR later?** Remove `output: 'export'` from `next.config.mjs` and follow
   `DEPLOYMENT.md` (Node + Nginx) instead.
+
+## 7. Troubleshooting
+
+**`The version of Next.js ("14.2.5") cannot be automatically configured … update to 14.2.35`**
+
+This means Cloudflare is deploying with its **Next.js SSR adapter** (a Worker) instead of serving
+your static `out/` folder — shown by `Output Directory: .next`. Two things to fix:
+
+1. **Push your changes to Git.** Cloudflare builds from the repo, not your local folder. If the
+   log still says `14.2.5`, the repo Cloudflare sees is an old commit — commit and push
+   `next.config.mjs`, `wrangler.jsonc`, `package.json`, and the `/search` change first.
+2. **Serve `out/` as static assets, not an SSR Worker.** The committed `wrangler.jsonc` already
+   does this via a Workers static‑assets binding (`assets.directory: "./out"`), so your existing
+   `npx wrangler deploy` command publishes the static site with **no framework adapter and no
+   version gate**.
+
+```bash
+git add -A && git commit -m "Static export + Cloudflare static assets" && git push
+# CI then runs: npm run build  ->  ./out ,  then  npx wrangler deploy  ->  serves ./out
+```
+
+If the log still shows `Framework: Next.js` / `Output: .next`, open the project's **Build settings**
+and set the **Framework preset to None** — the `wrangler.jsonc` assets config should already
+override it, but this removes any ambiguity.
+
+> **Pages instead of Workers?** If you'd rather use Cloudflare **Pages**, change the deploy command
+> to `npx wrangler pages deploy out` (or create a *Pages* project with output dir `out`) and swap
+> the `assets` block in `wrangler.jsonc` for `"pages_build_output_dir": "./out"`.
+
+**Build command shows `bun run build`** — that's fine (it runs the same `next build`). If a
+font/SWC step misbehaves under Bun, set the build command to `npm run build`.
 ```
