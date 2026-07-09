@@ -1,0 +1,14 @@
+{
+  // Cloudflare WORKERS static-assets config.
+  // Your deploy command is `npx wrangler deploy`, so we tell Wrangler to
+  // publish the exported ./out folder as static assets — NOT to build a
+  // Next.js SSR Worker (which caused the "Next.js 14.2.5 cannot be
+  // automatically configured" error). No server code = no framework adapter.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "qaaf",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page"
+  }
+}
