@@ -3,7 +3,7 @@ import type { Surah } from "@/lib/types";
 import {
   DOMAINS_IN_MAP_ORDER,
   getLetter,
-  getSection,
+  lettersByDomain,
   sectionsByDomain,
   surahsBySection,
   surahTheme,
@@ -12,50 +12,58 @@ import { MapEmblem } from "./MapEmblem";
 import { ScaleToFit } from "./ScaleToFit";
 import { cn } from "@/lib/utils";
 
-/** Natural (unscaled) width of the poster; ScaleToFit shrinks it to fit. */
-const DESIGN_WIDTH = 1240;
+/** Natural (unscaled) width of the poster; ScaleToFit fits it to the page. */
+const DESIGN_WIDTH = 1280;
 
-/* A single clickable surah cell (number + name), styled like a poster cell. */
+/** Compact column titles (the poster's per-column theme headers). */
+const SHORT: Record<string, string> = {
+  ikhlas: "الإخلاص",
+  majd: "المجد",
+  executive: "القيادة التنفيذية",
+  crisis: "إدارة الشدائد",
+  legislative: "الحكمة والتشريع",
+  judicial: "فصل الخطاب",
+  economic: "القوة الاقتصادية",
+  light: "الإخراج إلى النور",
+  moral: "الردع الأخلاقي",
+  defense: "الدفاع والحقوق",
+  behavioral: "القوة السلوكية",
+  foreign: "الشئون الخارجية",
+};
+
+/* A single clickable surah cell: number + name (as on the poster). */
 function Cell({ surah, highlight }: { surah: Surah; highlight?: boolean }) {
   return (
     <Link
       href={`/surahs/${surah.slug}`}
       title={`${surah.nuzul}. سورة ${surah.nameAr} — ${surahTheme(surah)}`}
       className={cn(
-        "group flex min-h-[32px] items-center gap-1.5 px-1.5 py-1 transition-colors",
-        highlight
-          ? "bg-gold-500/20 hover:bg-gold-500/30"
-          : "bg-parchment-50 hover:bg-gold-100"
+        "group flex min-h-[22px] items-center gap-1 px-1 py-0.5 transition-colors",
+        highlight ? "bg-gold-500/20 hover:bg-gold-500/30" : "bg-parchment-50 hover:bg-gold-100"
       )}
     >
-      <span className="flex h-5 min-w-[20px] items-center justify-center rounded bg-navy-900/[0.07] px-1 text-[10px] font-bold tabular-nums text-navy-700 group-hover:bg-navy-900 group-hover:text-parchment-50">
+      <span className="flex h-4 min-w-[16px] items-center justify-center rounded-sm bg-navy-900/[0.07] text-[8px] font-bold tabular-nums text-navy-700 group-hover:bg-navy-900 group-hover:text-parchment-50">
         {surah.nuzul}
       </span>
-      <span className="text-[11px] font-semibold leading-tight text-navy-900">
+      <span className="truncate text-[9.5px] font-semibold leading-none text-navy-900">
         {surah.nameAr}
       </span>
     </Link>
   );
 }
 
-/* One thematic sub-column: letter + section header, then its cells. */
-function SubColumn({ sectionKey }: { sectionKey: string }) {
-  const section = getSection(sectionKey)!;
-  // Poster orders cells top→bottom by DESCENDING nuzul (e.g. 22 → 1).
-  const surahs = [...surahsBySection(sectionKey)].reverse();
-  const letter = getLetter(section.letterSlug)!;
-
+/* One theme column: short header + its surah cells (ascending nuzul). */
+function ThemeColumn({ sectionKey }: { sectionKey: string }) {
+  const surahs = surahsBySection(sectionKey);
+  const letter = getLetter(surahs[0].letterSlug)!;
   return (
-    <div className="flex flex-col overflow-hidden rounded-md border border-gold-300/50 bg-gold-300/30">
+    <div className="flex flex-col overflow-hidden rounded border border-gold-300/50 bg-gold-300/25">
       <Link
         href={`/letters/${letter.slug}`}
-        className="flex flex-col items-center gap-0.5 bg-parchment-100 px-1 py-2 text-center transition-colors hover:bg-parchment-200"
+        className="flex min-h-[26px] items-center justify-center bg-parchment-100 px-1 py-1 text-center transition-colors hover:bg-parchment-200"
       >
-        <span className="wordmark text-lg font-bold leading-none text-gold-700">
-          {letter.letter}
-        </span>
-        <span className="text-[10.5px] font-bold leading-tight text-navy-900">
-          {section.titleAr}
+        <span className="text-[9px] font-bold leading-tight text-navy-900">
+          {SHORT[sectionKey]}
         </span>
       </Link>
       <div className="flex flex-col gap-px">
@@ -69,71 +77,80 @@ function SubColumn({ sectionKey }: { sectionKey: string }) {
 
 /**
  * PosterMap — a faithful, fully clickable rendition of the Manhaj Al-Noor
- * poster. All three domains sit side by side horizontally (right→left:
- * individual → governance → nation) exactly as on the printed map, and the
- * whole board scales to fit any screen width via ScaleToFit.
+ * poster. Three domains sit side by side (right→left: individual → governance →
+ * nation); each has a letter band (ن ق / ص ط ر ج / م) over its theme columns,
+ * with cells in ascending nuzul order. The whole board scales to any width.
  */
 export function PosterMap() {
   const domains = DOMAINS_IN_MAP_ORDER;
-  const gridCols = domains
-    .map((d) => `${sectionsByDomain(d.slug).length}fr`)
-    .join(" ");
+  const gridCols = domains.map((d) => `${sectionsByDomain(d.slug).length}fr`).join(" ");
 
   return (
     <ScaleToFit designWidth={DESIGN_WIDTH}>
-      <section className="relative overflow-hidden rounded-3xl border border-parchment-200 bg-parchment-50 texture-parchment p-6 shadow-card">
+      <section className="relative overflow-hidden rounded-3xl border border-parchment-200 bg-parchment-50 texture-parchment p-4 shadow-card">
         {/* Title */}
-        <header className="mb-6 text-center">
-          <div className="mb-2 flex items-center justify-center gap-3">
+        <header className="mb-4 text-center">
+          <div className="mb-1.5 flex items-center justify-center gap-3">
             <span className="h-px w-12 bg-gradient-to-l from-gold-500 to-transparent" />
-            <span className="text-sm font-semibold uppercase tracking-[0.2em] text-gold-700">
+            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-700">
               أمة القرآن
             </span>
             <span className="h-px w-12 bg-gradient-to-r from-gold-500 to-transparent" />
           </div>
-          <h1 className="wordmark text-5xl font-bold text-navy-900">منهاج النور</h1>
-          <p className="mt-2 text-lg text-gold-700">
+          <h1 className="wordmark text-4xl font-bold text-navy-900">منهاج النور</h1>
+          <p className="mt-1 text-base text-gold-700">
             بناء الإنسان والعمران بترتيب نزول القرآن
-          </p>
-          <p className="mt-2 text-xs text-ink-faint">
-            انقر أي خلية للانتقال إلى صفحة السورة، أو رأس العمود للمجموعة والمجال
           </p>
         </header>
 
         {/* Three domains, side by side */}
-        <div className="grid items-stretch gap-4" style={{ gridTemplateColumns: gridCols }}>
+        <div className="grid items-stretch gap-3" style={{ gridTemplateColumns: gridCols }}>
           {domains.map((domain) => {
             const sections = sectionsByDomain(domain.slug);
+            const letters = lettersByDomain(domain.slug);
             const isGovernance = domain.slug === "al-hukm-al-adil";
+            const colTemplate = `repeat(${sections.length}, minmax(0,1fr))`;
             return (
               <div key={domain.slug} className="flex h-full flex-col">
+                {/* Domain band */}
                 <Link
                   href={`/domains/${domain.slug}`}
-                  className="mb-3 block rounded-xl bg-navy-900 texture-navy px-4 py-3 text-center transition-colors hover:bg-navy-800"
+                  className="mb-1.5 block rounded-lg bg-navy-900 texture-navy px-3 py-2 text-center transition-colors hover:bg-navy-800"
                 >
-                  <span className="wordmark block text-xl font-bold text-gold-300">
+                  <span className="wordmark block text-lg font-bold leading-tight text-gold-300">
                     {domain.titleAr}
-                  </span>
-                  <span className="text-[11px] text-parchment-200/70">
-                    {domain.subtitleAr}
                   </span>
                 </Link>
 
+                {/* Letter band (letters span their theme columns) */}
                 <div
-                  className="grid items-start gap-2"
-                  style={{
-                    gridTemplateColumns: `repeat(${sections.length}, minmax(0,1fr))`,
-                  }}
+                  className="mb-1.5 grid gap-1"
+                  style={{ gridTemplateColumns: colTemplate }}
                 >
-                  {sections.map((s) => (
-                    <SubColumn key={s.key} sectionKey={s.key} />
+                  {letters.map((l) => (
+                    <Link
+                      key={l.slug}
+                      href={`/letters/${l.slug}`}
+                      style={{ gridColumn: `span ${l.sectionKeys.length}` }}
+                      className="flex items-center justify-center rounded bg-navy-800/90 py-1 transition-colors hover:bg-navy-700"
+                    >
+                      <span className="wordmark text-base font-bold text-gold-300">
+                        {l.letter}
+                      </span>
+                    </Link>
                   ))}
                 </div>
 
-                {/* Governance is shortest, so the emblem fills its gap — as on
-                    the poster. Other groups get a plain spacer. */}
+                {/* Theme columns */}
+                <div className="grid items-start gap-1" style={{ gridTemplateColumns: colTemplate }}>
+                  {sections.map((s) => (
+                    <ThemeColumn key={s.key} sectionKey={s.key} />
+                  ))}
+                </div>
+
+                {/* Governance is shortest → emblem fills its gap, as on the poster. */}
                 {isGovernance ? (
-                  <div className="flex flex-1 items-center justify-center py-6">
+                  <div className="flex flex-1 items-center justify-center py-4">
                     <MapEmblem />
                   </div>
                 ) : (
@@ -143,6 +160,10 @@ export function PosterMap() {
             );
           })}
         </div>
+
+        <p className="mt-4 text-center text-[11px] text-ink-faint">
+          انقر أي خلية للانتقال إلى صفحة السورة — الأرقام بترتيب النزول
+        </p>
       </section>
     </ScaleToFit>
   );
